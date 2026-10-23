@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMS Forwarder · 双卡短信转发器 | 产品介绍</title>
+<meta name="description" content="SMS Forwarder 是一套端到端的双卡短信转发解决方案：双 4G 模组接收短信，秒级推送到 Web 管理面板、微信小程序与多种第三方通道。">
+<style>
+  :root{
+    --bg:#070b14;
+    --bg-2:#0b1220;
+    --card:rgba(17,24,39,.72);
+    --border:rgba(148,163,184,.16);
+    --border-strong:rgba(34,211,238,.42);
+    --text:#e8edf7;
+    --text-2:#94a3b8;
+    --text-3:#64748b;
+    --accent:#22d3ee;
+    --accent-2:#818cf8;
+    --gradient:linear-gradient(135deg,#22d3ee,#818cf8);
+    --gradient-soft:linear-gradient(135deg,rgba(34,211,238,.14),rgba(129,140,248,.14));
+    --success:#34d399;
+    --radius:18px;
+    --radius-sm:12px;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  /* 背景光效 */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(900px 500px at 12% -8%,rgba(34,211,238,.13),transparent 60%),
+      radial-gradient(800px 480px at 88% 4%,rgba(129,140,248,.13),transparent 60%),
+      radial-gradient(700px 500px at 50% 105%,rgba(52,211,153,.08),transparent 60%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.35;
+    background-image:linear-gradient(rgba(148,163,184,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(148,163,184,.06) 1px,transparent 1px);
+    background-size:56px 56px;
+    mask-image:radial-gradient(circle at 50% 30%,#000 0%,transparent 78%);
+    -webkit-mask-image:radial-gradient(circle at 50% 30%,#000 0%,transparent 78%);
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+  /* 顶栏 */
+  header{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    background:rgba(7,11,20,.72);
+    border-bottom:1px solid var(--border);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;letter-spacing:.2px}
+  .brand-dot{width:28px;height:28px;border-radius:9px;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 18px rgba(34,211,238,.45)}
+  .nav-links{display:flex;gap:26px;font-size:14px}
+  .nav-links a{color:var(--text-2);text-decoration:none;transition:color .2s}
+  .nav-links a:hover{color:var(--accent)}
+
+  /* 通用 */
+  section{padding:76px 0;scroll-margin-top:70px}
+  .eyebrow{
+    display:inline-block;font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+    color:var(--accent);background:var(--gradient-soft);border:1px solid rgba(34,211,238,.28);
+    padding:5px 14px;border-radius:20px;margin-bottom:18px;
+  }
+  h2{font-size:32px;font-weight:700;margin-bottom:14px;letter-spacing:-.4px}
+  .lead{color:var(--text-2);font-size:16px;max-width:760px}
+
+  /* Hero */
+  .hero{padding:88px 0 68px;text-align:center}
+  .hero h1{font-size:clamp(34px,6vw,58px);font-weight:800;line-height:1.16;letter-spacing:-1.2px;margin-bottom:20px}
+  .hero h1 .grad{background:var(--gradient);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero p{font-size:18px;color:var(--text-2);max-width:660px;margin:0 auto 30px}
+  .hero-tags{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:34px}
+  .tag{font-size:13px;padding:6px 14px;border-radius:20px;background:var(--card);border:1px solid var(--border);color:var(--text-2)}
+  .tag b{color:var(--text);font-weight:600}
+  .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border-radius:12px;
+    font-size:15px;font-weight:600;text-decoration:none;transition:all .22s;border:1px solid transparent;cursor:pointer;
+  }
+  .btn-primary{background:var(--gradient);color:#04121c;box-shadow:0 8px 28px rgba(34,211,238,.3)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(34,211,238,.44)}
+  .btn-ghost{background:var(--card);border-color:var(--border);color:var(--text)}
+  .btn-ghost:hover{border-color:var(--border-strong);color:var(--accent)}
+
+  /* 数据条 */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:56px}
+  .stat{background:var(--card);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:var(--radius-sm);padding:22px 18px;text-align:center}
+  .stat-n{font-size:28px;font-weight:800;font-family:var(--mono);background:var(--gradient);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stat-l{font-size:13px;color:var(--text-2);margin-top:4px}
+
+  /* 卡片网格 */
+  .grid{display:grid;gap:16px;margin-top:38px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .card{
+    background:var(--card);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--border);border-radius:var(--radius);padding:22px;
+    transition:border-color .22s,transform .22s,box-shadow .22s;
+  }
+  .card:hover{border-color:var(--border-strong);transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,.4)}
+  .f-icon{
+    width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+    font-size:22px;background:var(--bg-2);border:1px solid var(--border);margin-bottom:14px;
+  }
+  .card h3{font-size:16px;font-weight:650;margin-bottom:7px}
+  .card p{font-size:14px;color:var(--text-2);line-height:1.65}
+
+  /* 架构 */
+  .arch{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:38px;align-items:stretch}
+  .layer{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 20px;position:relative;
+  }
+  .layer-tag{font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+  .layer h3{font-size:17px;margin-bottom:12px}
+  .layer ul{list-style:none;font-size:14px;color:var(--text-2)}
+  .layer li{padding:5px 0 5px 18px;position:relative}
+  .layer li::before{content:"";position:absolute;left:0;top:13px;width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px rgba(34,211,238,.7)}
+  .layer .mono{font-family:var(--mono);font-size:12.5px;color:var(--accent-2)}
+  .flow{
+    display:flex;align-items:center;justify-content:center;gap:14px;margin-top:26px;
+    font-size:13px;color:var(--text-2);flex-wrap:wrap;
+  }
+  .flow span{padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px}
+  .flow i{color:var(--accent);font-style:normal;font-weight:700}
+
+  /* 流程步骤 */
+  .steps{margin-top:38px;display:grid;gap:14px}
+  .step{display:flex;gap:16px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px 20px}
+  .step-n{
+    width:32px;height:32px;flex-shrink:0;border-radius:50%;background:var(--gradient-soft);
+    border:1px solid rgba(34,211,238,.34);color:var(--accent);font-weight:700;font-size:14px;
+    display:flex;align-items:center;justify-content:center;font-family:var(--mono);
+  }
+  .step h4{font-size:15px;margin-bottom:4px}
+  .step p{font-size:14px;color:var(--text-2)}
+
+  /* 通道 chips */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+  .chip{
+    display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:12px;
+    background:var(--card);border:1px solid var(--border);font-size:14px;transition:all .2s;
+  }
+  .chip:hover{border-color:var(--border-strong);color:var(--accent)}
+  .chip b{font-family:var(--mono);font-size:11px;color:var(--text-3)}
+
+  /* 场景 */
+  .scene{display:flex;gap:14px;align-items:flex-start;padding:18px 20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);transition:border-color .2s}
+  .scene:hover{border-color:var(--border-strong)}
+  .scene-icon{font-size:24px;flex-shrink:0}
+  .scene h4{font-size:15px;margin-bottom:4px}
+  .scene p{font-size:14px;color:var(--text-2)}
+
+  /* 规格表 */
+  .spec{width:100%;border-collapse:collapse;margin-top:32px;font-size:14.5px}
+  .spec th,.spec td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--border)}
+  .spec th{width:210px;color:var(--text-2);font-weight:500}
+  .spec td{color:var(--text)}
+  .spec tr:hover td,.spec tr:hover th{background:rgba(148,163,184,.05)}
+  .spec .mono{font-family:var(--mono);font-size:13px;color:var(--accent)}
+
+  /* FAQ */
+  .faq{margin-top:34px;display:grid;gap:12px}
+  details{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 20px;transition:border-color .2s}
+  details:hover{border-color:var(--border-strong)}
+  details[open]{border-color:var(--border-strong)}
+  summary{cursor:pointer;font-size:15px;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:14px}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";color:var(--accent);font-size:20px;font-weight:400;flex-shrink:0}
+  details[open] summary::after{content:"−"}
+  details p{font-size:14px;color:var(--text-2);margin-top:12px}
+
+  /* ===== 两种运行模式 ===== */
+  .editions{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:38px}
+  .edition{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:26px 22px;position:relative;overflow:hidden;
+  }
+  .edition::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--gradient);opacity:.9}
+  .edition.local::before{background:linear-gradient(135deg,#34d399,#22d3ee)}
+  .edition:hover{border-color:var(--border-strong)}
+  .ed-tag{
+    display:inline-block;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;
+    padding:4px 11px;border-radius:20px;margin-bottom:12px;
+  }
+  .ed-server .ed-tag{color:var(--accent);background:rgba(34,211,238,.13);border:1px solid rgba(34,211,238,.3)}
+  .ed-local .ed-tag{color:var(--success);background:rgba(52,211,153,.13);border:1px solid rgba(52,211,153,.3)}
+  .edition h3{font-size:19px;margin-bottom:8px}
+  .edition .ed-lead{font-size:14px;color:var(--text-2);margin-bottom:16px;line-height:1.65}
+  .edition ul{list-style:none;font-size:14px;color:var(--text-2);display:grid;gap:7px}
+  .edition li{padding-left:20px;position:relative}
+  .edition li::before{content:"✓";position:absolute;left:0;top:0;color:var(--accent);font-weight:700}
+  .edition.local li::before{color:var(--success)}
+  .ed-note{
+    margin-top:16px;padding:12px 14px;border-radius:10px;font-size:13px;color:var(--text-2);
+    background:var(--bg-2);border:1px dashed var(--border);
+  }
+  .ed-note b{color:var(--text)}
+
+  /* ===== 消息流转路径 ===== */
+  .paths{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:38px}
+  .path{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 22px;
+  }
+  .path:hover{border-color:var(--border-strong)}
+  .path-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+  .path-head h3{font-size:16px}
+  .path-head .sub{font-size:12px;color:var(--text-3);margin-left:auto;font-family:var(--mono)}
+  .chain{list-style:none}
+  .chain li{position:relative;padding:0 0 20px 28px}
+  .chain li:last-child{padding-bottom:0}
+  .chain li::before{content:"";position:absolute;left:8px;top:14px;bottom:-2px;width:1px;background:var(--border)}
+  .chain li:last-child::before{display:none}
+  .chain li::after{
+    content:"";position:absolute;left:3.5px;top:6px;width:10px;height:10px;border-radius:50%;
+    background:var(--accent);box-shadow:0 0 9px rgba(34,211,238,.65);
+  }
+  .path.local .chain li::after{background:var(--success);box-shadow:0 0 9px rgba(52,211,153,.65)}
+  .chain b{display:block;font-size:14.5px;font-weight:600;color:var(--text)}
+  .chain em{display:block;font-style:normal;font-size:12.5px;color:var(--text-3);margin-top:2px;line-height:1.55}
+  .branch{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+  .branch span{
+    font-size:12px;padding:5px 11px;border-radius:9px;background:var(--bg-2);
+    border:1px solid var(--border);color:var(--text-2);
+  }
+  .path-note{
+    margin-top:16px;padding:12px 14px;border-radius:10px;font-size:12.5px;color:var(--text-2);
+    background:var(--bg-2);border:1px dashed var(--border);line-height:1.6;
+  }
+  .path-note b{color:var(--text);font-weight:600}
+
+  /* 对比表 */
+  .cmp{width:100%;border-collapse:collapse;margin-top:34px;font-size:14px}
+  .cmp th,.cmp td{padding:13px 16px;text-align:left;border-bottom:1px solid var(--border)}
+  .cmp thead th{color:var(--text);font-weight:650;font-size:13.5px;background:rgba(148,163,184,.05)}
+  .cmp tbody th{width:auto;color:var(--text-2);font-weight:500}
+  .cmp td{color:var(--text-2)}
+  .cmp td.yes{color:var(--success)}
+  .cmp td.no{color:var(--text-3)}
+  .cmp tr:hover td,.cmp tr:hover th{background:rgba(148,163,184,.05)}
+  .cmp .yes::before{content:"✓ ";}
+  .cmp .no::before{content:"— ";}
+
+  /* 分隔 */
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
+
+  /* 页脚 */
+  footer{padding:44px 0 56px;text-align:center;border-top:1px solid var(--border);margin-top:30px}
+  .footer-brand{font-size:16px;font-weight:700;margin-bottom:8px}
+  footer p{font-size:13px;color:var(--text-3)}
+
+  /* 响应式 */
+  @media (max-width:860px){
+    .g3,.arch{grid-template-columns:1fr}
+    .g2{grid-template-columns:1fr}
+    .editions,.paths{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .nav-links{display:none}
+    h2{font-size:26px}
+    section{padding:56px 0}
+    .cmp{font-size:13px}
+    .cmp th,.cmp td{padding:10px 10px}
+  }
+  @media (max-width:520px){
+    .stats{grid-template-columns:1fr}
+    .spec th{width:130px}
+    .spec th,.spec td{padding:11px 12px;font-size:13.5px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand"><span class="brand-dot">📡</span> SMS Forwarder</div>
+    <nav class="nav-links">
+      <a href="#overview">产品概述</a>
+      <a href="#editions">版本对比</a>
+      <a href="#flow">消息流转</a>
+      <a href="#features">核心功能</a>
+      <a href="#arch">系统架构</a>
+      <a href="#specs">技术规格</a>
+      <a href="#faq">常见问题</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Dual SIM SMS Gateway</div>
+    <h1>把设备收到的短信，<br><span class="grad">实时送到你的屏幕</span></h1>
+    <p>
+      SMS Forwarder 是一套端到端的双卡短信转发方案。专用硬件终端内置两块 4G 模组同时在线，
+      短信到达即秒级推送到 Web 管理面板、微信小程序，以及你配置的任意第三方通道。
+      <strong style="color:var(--text)">同一台硬件支持两种用法</strong>——接服务器做多设备集中管理，
+      或完全不接服务器、纯本地独立运行。
+    </p>
+    <div class="hero-tags">
+      <span class="tag"><b>双卡双待</b> · 2×4G 模组</span>
+      <span class="tag"><b>秒级</b> 实时推送</span>
+      <span class="tag"><b>9 种</b> 推送通道</span>
+      <span class="tag"><b>两种模式</b> 服务器版 / 纯本地版</span>
+    </div>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#editions">对比两种模式</a>
+      <a class="btn btn-ghost" href="#flow">看消息怎么流转</a>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-n">2</div><div class="stat-l">SIM 卡槽</div></div>
+      <div class="stat"><div class="stat-n">9</div><div class="stat-l">推送通道</div></div>
+      <div class="stat"><div class="stat-n">&lt;1s</div><div class="stat-l">端到端延迟</div></div>
+      <div class="stat"><div class="stat-n">2</div><div class="stat-l">运行模式</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- 概述 -->
+<section id="overview">
+  <div class="wrap">
+    <div class="eyebrow">Overview</div>
+    <h2>它解决了什么问题</h2>
+    <p class="lead">
+      验证码、业务通知、告警短信常常落在一张插在角落设备里的 SIM 卡上——人不在现场就看不着，
+      换卡查短信更是麻烦。SMS Forwarder 把这事儿做成一条自动流水线：
+      设备收短信 → 长连接上报 → 服务端匹配规则 → 多点触达。
+    </p>
+
+    <div class="grid g2">
+      <div class="card">
+        <div class="f-icon">📴</div>
+        <h3>传统方式的痛点</h3>
+        <p>SIM 卡插在异地设备里，收短信必须人到现场；短信分散在多张卡上难以归集；
+        无法与自动化流程打通；设备掉线无人知晓。</p>
+      </div>
+      <div class="card">
+        <div class="f-icon">✅</div>
+        <h3>SMS Forwarder 的做法</h3>
+        <p>双卡常驻在线，短信到达即上报云端并秒级推送；支持关键词与黑名单过滤；
+        可转发到 9 种通道触发下游自动化；设备掉线主动告警。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 两种运行模式 -->
+<section id="editions">
+  <div class="wrap">
+    <div class="eyebrow">Editions</div>
+    <h2>两种运行模式，同一台硬件</h2>
+    <p class="lead">
+      设备是否连接服务器，是一个可以随时切换的开关。接上服务器就是「服务器版」，
+      关掉就是「纯本地版」——硬件完全相同，随时切换，不需要重新烧录。
+    </p>
+
+    <div class="editions">
+      <div class="edition ed-server">
+        <span class="ed-tag">Server Edition</span>
+        <h3>服务器版 · 联网集中管理</h3>
+        <p class="ed-lead">设备通过加密长连接接入你自己部署的服务器，短信统一归档、多点分发、远程可控。</p>
+        <ul>
+          <li>短信全量入库，支持长期检索、未读标记与全部已读</li>
+          <li>Web 管理面板 + 微信小程序，不受局域网限制，随时随地查看</li>
+          <li>单账号集中管理多台设备，可绑定 / 解绑 / 共享（控制 · 只读角色）</li>
+          <li>设备掉线自动告警，恢复上线即时通知</li>
+          <li>远程指令经服务器下发：重启、重初始化、飞行模式、测速、AT 指令</li>
+          <li>支持账号密码 / 短信验证码 / 微信登录</li>
+        </ul>
+        <div class="ed-note">
+          <b>适合：</b>多台设备要统一管理、团队共用、需要出门在外查看历史短信、想用小程序接收。
+        </div>
+      </div>
+
+      <div class="edition ed-local local">
+        <span class="ed-tag">Standalone Edition</span>
+        <h3>纯本地版 · 单机独立运行</h3>
+        <p class="ed-lead">不接任何服务器。设备自己收短信、自己过滤、自己推送，短信留在设备里，不出局域网。</p>
+        <ul>
+          <li>设备直连第三方通道推送，不经过任何中间服务器</li>
+          <li>可选邮件通知，设备直接投递到你的邮箱</li>
+          <li>可选 MQTT 输出，接入 Home Assistant 等本地自动化平台</li>
+          <li>浏览器打开设备内置网页即可查看短信、发短信、改配置</li>
+          <li>本地保留最近 100 条短信，号码黑白名单与关键词过滤照常生效</li>
+          <li>本地网页直接下发指令：发送短信、测速、重启、飞行模式</li>
+        </ul>
+        <div class="ed-note">
+          <b>适合：</b>只要把短信转出去、看重隐私不想让数据过服务器、单台设备自用、已有本地自动化平台。
+        </div>
+      </div>
+    </div>
+
+    <table class="cmp">
+      <thead>
+        <tr><th>能力</th><th>服务器版</th><th>纯本地版</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>短信接收 / 远程发送</th><td class="yes">支持</td><td class="yes">支持</td></tr>
+        <tr><th>号码黑白名单 / 关键词过滤</th><td class="yes">支持</td><td class="yes">支持</td></tr>
+        <tr><th>第三方推送通道（9 种）</th><td class="yes">支持</td><td class="yes">支持</td></tr>
+        <tr><th>邮件通知</th><td class="yes">支持</td><td class="yes">支持</td></tr>
+        <tr><th>MQTT / 本地自动化接入</th><td class="yes">支持</td><td class="yes">支持</td></tr>
+        <tr><th>定时重启 / 定时飞行模式</th><td class="yes">支持</td><td class="yes">支持</td></tr>
+        <tr><th>是否需要自建服务器</th><td>需要（自托管部署）</td><td class="no">不需要</td></tr>
+        <tr><th>短信是否离开本地网络</th><td>经你自己的服务器中转</td><td class="no">不出局域网（推送目标除外）</td></tr>
+        <tr><th>短信历史容量</th><td>服务器数据库，长期保存</td><td>设备本地最近 100 条</td></tr>
+        <tr><th>Web 管理面板（云端访问）</th><td class="yes">支持</td><td class="no">不支持</td></tr>
+        <tr><th>微信小程序</th><td class="yes">支持</td><td class="no">不支持</td></tr>
+        <tr><th>设备内置网页（局域网直连）</th><td class="yes">支持</td><td class="yes">支持</td></tr>
+        <tr><th>多设备集中管理</th><td class="yes">支持</td><td class="no">每台各自管理</td></tr>
+        <tr><th>设备共享与角色权限</th><td class="yes">支持</td><td class="no">不支持</td></tr>
+        <tr><th>未读角标 / 全部已读</th><td class="yes">支持</td><td class="no">不支持</td></tr>
+        <tr><th>设备掉线告警</th><td class="yes">支持</td><td class="no">不支持</td></tr>
+        <tr><th>远程运维指令</th><td>经服务器转发</td><td>本地网页直接下发</td></tr>
+        <tr><th>账号体系</th><td>平台账号（多人）</td><td>设备本地账号</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 消息流转 -->
+<section id="flow">
+  <div class="wrap">
+    <div class="eyebrow">Message Flow</div>
+    <h2>一条短信是怎么走到你手上的</h2>
+    <p class="lead">
+      无论哪种模式，前半段完全相同：SIM 卡收到短信 → 设备解析并过滤。
+      区别只在<b style="color:var(--text)">过滤之后往哪儿送</b>。
+      注意两种模式下，设备的推送通道、邮件、MQTT 都是<b style="color:var(--text)">由设备自己直连发出</b>的，不依赖服务器。
+    </p>
+
+    <div class="paths">
+      <!-- 服务器版 -->
+      <div class="path">
+        <div class="path-head">
+          <span class="ed-tag" style="color:var(--accent);background:rgba(34,211,238,.13);border:1px solid rgba(34,211,238,.3);margin:0">服务器版</span>
+          <h3>上行：短信 → 你</h3>
+          <span class="sub">经过服务器</span>
+        </div>
+        <ol class="chain">
+          <li><b>SIM 卡收到短信</b><em>模组唤醒主控，长短信自动拼接</em></li>
+          <li><b>设备本地过滤</b><em>号码黑白名单 → 内容关键词，命中即拦截</em></li>
+          <li><b>加密长连接上报</b><em>设备 → 服务器，秒级送达</em></li>
+          <li><b>服务器匹配规则并归档</b><em>入库、标记未读、命中转发规则</em></li>
+          <li><b>实时下发到客户端</b><em>Web 面板 · 微信小程序 · 未读角标</em></li>
+          <li><b>服务器侧通道分发</b>
+            <em>按你的配置转发到：</em>
+            <span class="branch">
+              <span>企业微信</span><span>钉钉</span><span>飞书</span><span>Telegram</span><span>Bark</span><span>Gotify</span><span>自定义 Webhook</span>
+            </span>
+          </li>
+        </ol>
+        <div class="path-note">
+          <b>并行支路：</b>同一条短信还会由设备<b>同时</b>直连发出——设备本地推送通道、邮件、MQTT。三路互不等待，任一链路故障不影响其余。
+        </div>
+        <div class="path-note" style="margin-top:10px">
+          <b>下行：指令怎么回设备</b><br>
+          面板点「重启 / 测速 / 发短信」→ 服务器 → 加密长连接 → 设备执行 → 结果沿原路回传，终端实时打印。
+        </div>
+      </div>
+
+      <!-- 纯本地版 -->
+      <div class="path local">
+        <div class="path-head">
+          <span class="ed-tag" style="color:var(--success);background:rgba(52,211,153,.13);border:1px solid rgba(52,211,153,.3);margin:0">纯本地版</span>
+          <h3>上行：短信 → 你</h3>
+          <span class="sub">不经过服务器</span>
+        </div>
+        <ol class="chain">
+          <li><b>SIM 卡收到短信</b><em>模组唤醒主控，长短信自动拼接</em></li>
+          <li><b>设备本地过滤</b><em>号码黑白名单 → 内容关键词，命中即拦截</em></li>
+          <li><b>写入设备本地短信库</b><em>保留最近 100 条，浏览器随时翻</em></li>
+          <li><b>设备直连并发推送</b>
+            <em>三条路同时发出，全部由设备自己完成：</em>
+            <span class="branch">
+              <span>推送通道（9 种）</span><span>邮件通知</span><span>MQTT → Home Assistant</span>
+            </span>
+          </li>
+          <li><b>你在手机上收到通知</b><em>Bark / Telegram / 企微 / 钉钉 / 飞书 / Gotify 任选</em></li>
+          <li><b>浏览器直连设备查看</b><em>打开 http://sms.local 或设备局域网 IP，无需账号服务器</em></li>
+        </ol>
+        <div class="path-note">
+          <b>数据边界：</b>短信正文只留在设备里，只有你主动配置的推送目标会收到内容——没有中间服务器，也没有第三方经手。
+        </div>
+        <div class="path-note" style="margin-top:10px">
+          <b>下行：指令怎么下发</b><br>
+          设备内置网页点「发短信 / 测速 / 重启 / 飞行模式」→ 设备就地执行，整条链路不出局域网。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 核心功能 -->
+<section id="features">
+  <div class="wrap">
+    <div class="eyebrow">Features</div>
+    <h2>核心功能</h2>
+    <p class="lead">从接收、过滤、推送到远程运维，覆盖短信转发全生命周期。</p>
+
+    <div class="grid g3">
+      <div class="card">
+        <div class="f-icon">💬</div>
+        <h3>双卡短信接收</h3>
+        <p>两块 4G Cat.1 模组常驻在线，双卡双待，各自独立上报短信与状态。</p>
+      </div>
+      <div class="card">
+        <div class="f-icon">⚡</div>
+        <h3>秒级实时推送</h3>
+        <p>设备与服务端保持长连接，短信到达即刻抵达面板，无需轮询。</p>
+      </div>
+      <div class="card">
+        <div class="f-icon">📱</div>
+        <h3>多设备集中管理</h3>
+        <p>输入设备 MAC 编码即可绑定；支持解绑与多用户共享，可分配控制 / 只读角色。</p>
+      </div>
+      <div class="card">
+        <div class="f-icon">🔎</div>
+        <h3>关键词与黑名单</h3>
+        <p>按需配置放行关键词、屏蔽关键词与号码黑名单，只把有价值的短信推给你。</p>
+      </div>
+      <div class="card">
+        <div class="f-icon">📤</div>
+        <h3>远程发送短信</h3>
+        <p>在面板上指定卡槽直接对外发送短信，设备秒变可远程操控的短信终端。</p>
+      </div>
+      <div class="card">
+        <div class="f-icon">🔔</div>
+        <h3>多通道分发</h3>
+        <p>内置 9 种推送通道 + 邮件白名单，同一条短信可同时抵达多个平台。</p>
+      </div>
+      <div class="card">
+        <div class="f-icon">🎛️</div>
+        <h3>远程运维指令</h3>
+        <p>下发自定义 AT 指令、Ping 测速诊断网络、查询模块信息，排查问题无需到现场。</p>
+      </div>
+      <div class="card">
+        <div class="f-icon">🔌</div>
+        <h3>硬件级断电重启</h3>
+        <p>不是软件软重启——直接切断模组供电并重新上电，相当于拔插一次电源，可针对单个卡槽操作，模组卡死也能救回来。</p>
+      </div>
+      <div class="card">
+        <div class="f-icon">🎚️</div>
+        <h3>单模块开关机</h3>
+        <p>按卡槽独立启用 / 禁用与飞行模式切换，两个模块互不干扰，维护其中一张卡不影响另一张继续收信。</p>
+      </div>
+      <div class="card">
+        <div class="f-icon">🔄</div>
+        <h3>整机远程重启</h3>
+        <p>一键重启设备主控，也可单独重初始化全部模块；配合定时重启策略，长期无人值守免维护。</p>
+      </div>
+      <div class="card">
+        <div class="f-icon">⏰</div>
+        <h3>定时任务</h3>
+        <p>配置定时重启与飞行模式时段，让设备按计划自动维护、降低功耗。</p>
+      </div>
+      <div class="card">
+        <div class="f-icon">📊</div>
+        <h3>设备健康监控</h3>
+        <p>实时展示 WiFi 信号、内外网 IP、心跳时间、模块在线状态与卡槽号码。</p>
+      </div>
+      <div class="card">
+        <div class="f-icon">🗂️</div>
+        <h3>短信归档管理</h3>
+        <p>完整短信记录，支持未读标记、全部已读、单条删除与按设备筛选。</p>
+      </div>
+      <div class="card">
+        <div class="f-icon">🌙</div>
+        <h3>勿扰模式</h3>
+        <p>设定免打扰时段，夜间不再被推送打扰，白天照常实时送达。</p>
+      </div>
+      <div class="card">
+        <div class="f-icon">🖥️</div>
+        <h3>多端访问</h3>
+        <p>Web 管理面板 + 微信小程序，电脑与手机随时查看，深浅主题自由切换。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 架构 -->
+<section id="arch">
+  <div class="wrap">
+    <div class="eyebrow">Architecture</div>
+    <h2>系统架构</h2>
+    <p class="lead">
+      设备端是最核心的一环——它既能自己独立完成全部转发工作（纯本地版），
+      也可以接入服务端获得集中管理、长期归档与多端访问（服务器版）。
+    </p>
+
+    <div class="arch">
+      <div class="layer">
+        <div class="layer-tag">Device · 必需</div>
+        <h3>设备端</h3>
+        <ul>
+          <li>嵌入式主控</li>
+          <li>2 × 4G Cat.1 模组</li>
+          <li>双 SIM 卡槽</li>
+          <li>硬件级供电控制</li>
+          <li>号码 / 关键词过滤</li>
+          <li>本机短信库 + 内置网页</li>
+          <li class="mono">推送 · 邮件 · MQTT 直连</li>
+        </ul>
+      </div>
+      <div class="layer">
+        <div class="layer-tag">Server · 可选</div>
+        <h3>服务端</h3>
+        <ul>
+          <li>自研后端服务</li>
+          <li>关系型数据库持久化</li>
+          <li>设备 / 用户双通道网关</li>
+          <li class="mono">鉴权 · 存储 · 分发</li>
+          <li>规则匹配 + 推送分发</li>
+          <li>掉线检测与告警</li>
+        </ul>
+      </div>
+      <div class="layer">
+        <div class="layer-tag">Client</div>
+        <h3>客户端</h3>
+        <ul>
+          <li>Web 管理面板（服务器版）</li>
+          <li>微信小程序（服务器版）</li>
+          <li>设备内置网页（两版通用）</li>
+          <li>实时未读角标</li>
+          <li class="mono">多平台第三方通道</li>
+          <li>邮件通知（白名单）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flow">
+      <span>SIM 卡收到短信</span><i>→</i>
+      <span>设备过滤判定</span><i>→</i>
+      <span>服务器归档分发</span><i>→</i>
+      <span>面板 / 小程序 / 通道触达</span>
+    </div>
+    <p style="text-align:center;margin-top:16px;font-size:13px;color:var(--text-3)">
+      纯本地版没有「服务端」这一层：设备在过滤后直接向推送目标发起请求。详见
+      <a href="#flow" style="color:var(--accent);text-decoration:none">消息流转</a>。
+    </p>
+  </div>
+</section>
+
+<!-- 推送通道 -->
+<section id="channels">
+  <div class="wrap">
+    <div class="eyebrow">Push Channels</div>
+    <h2>丰富的推送通道</h2>
+    <p class="lead">不锁定任何单一平台——9 种内置通道 + 自定义 Webhook，想推到哪就推到哪。</p>
+
+    <div class="chips">
+      <span class="chip">🔗 自定义 Webhook（POST）</span>
+      <span class="chip">🍎 Bark</span>
+      <span class="chip">🌐 自定义 GET 请求</span>
+      <span class="chip">🧩 自定义 JSON 模板</span>
+      <span class="chip">✈️ Telegram Bot</span>
+      <span class="chip">💼 企业微信机器人</span>
+      <span class="chip">🅳 钉钉机器人（加签）</span>
+      <span class="chip">🐦 飞书机器人（加签）</span>
+      <span class="chip">📮 Gotify</span>
+      <span class="chip">📧 邮件通知（白名单）</span>
+      <span class="chip">🏠 MQTT（接入 Home Assistant 等本地自动化）</span>
+    </div>
+    <p style="margin-top:18px;font-size:13px;color:var(--text-3)">
+      设备端最多同时启用 3 组通道；服务器版可在管理面板中按需配置并统一管理。
+      通道推送由设备直连目标服务发出，两种模式下都不经过中转。
+    </p>
+  </div>
+</section>
+
+<!-- 应用场景 -->
+<section id="scenes">
+  <div class="wrap">
+    <div class="eyebrow">Use Cases</div>
+    <h2>典型应用场景</h2>
+    <div class="grid g2">
+      <div class="scene">
+        <span class="scene-icon">🔐</span>
+        <div><h4>验证码集中接收</h4><p>把注册验证码卡放进设备，团队共享一个验证码接收终端，不再轮流插卡。</p></div>
+      </div>
+      <div class="scene">
+        <span class="scene-icon">📢</span>
+        <div><h4>业务通知归集</h4><p>银行动账、物流取件、系统告警等通知统一转发到企业微信 / 钉钉群。</p></div>
+      </div>
+      <div class="scene">
+        <span class="scene-icon">🛰️</span>
+        <div><h4>异地设备监控</h4><p>设备部署在远端机房或门店，掉线即告警，远程可下发重启与 AT 指令自救。</p></div>
+      </div>
+      <div class="scene">
+        <span class="scene-icon">⚙️</span>
+        <div><h4>自动化流程触发</h4><p>短信经自定义 Webhook 接入 n8n、Home Assistant 等，驱动下游自动化。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 快速上手 -->
+<section id="quickstart">
+  <div class="wrap">
+    <div class="eyebrow">Quick Start</div>
+    <h2>快速上手</h2>
+    <p class="lead">先做第 1 步（两种模式都要做），之后按你选的模式各走各的路。</p>
+
+    <div class="editions">
+      <div class="edition ed-server">
+        <span class="ed-tag">Server Edition</span>
+        <h3>服务器版 · 四步</h3>
+        <div class="steps" style="margin-top:16px">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div><h4>准备硬件</h4><p>设备出厂已烧录固件，接好天线与电源，在两张卡槽中分别插入 SIM 卡。</p></div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div><h4>配置网络</h4><p>在设备配网页面填写 WiFi 与服务器地址，保存后设备自动联网上线。</p></div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div><h4>绑定设备</h4><p>登录 Web 面板，在「设置 → 我的设备」中输入设备 MAC 编码完成绑定。</p></div>
+          </div>
+          <div class="step">
+            <div class="step-n">4</div>
+            <div><h4>配置推送</h4><p>设置转发规则与推送通道，发一条测试短信验证链路，即可投入使用。</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="edition ed-local local">
+        <span class="ed-tag">Standalone Edition</span>
+        <h3>纯本地版 · 三步</h3>
+        <div class="steps" style="margin-top:16px">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div><h4>准备硬件</h4><p>同上：接好天线与电源，两张卡槽分别插入 SIM 卡。</p></div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div><h4>配网并打开设备网页</h4><p>首次用手机连设备发出的配置热点填好 WiFi；之后浏览器访问 <span class="mono" style="font-family:var(--mono);color:var(--accent)">http://sms.local</span> 或设备局域网 IP。</p></div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div><h4>填推送通道</h4><p>在设备网页里填入 Bark / Telegram / 企业微信等通道地址，点测试推送验证，即可投入使用。</p></div>
+          </div>
+        </div>
+        <div class="ed-note">
+          <b>切换模式：</b>在设备网页里打开或关闭「服务器连接」开关即可在两种模式间切换，无需重新烧录。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- 规格 -->
+<section id="specs">
+  <div class="wrap">
+    <div class="eyebrow">Specifications</div>
+    <h2>技术规格</h2>
+    <table class="spec">
+      <tbody>
+        <tr><th>产品名称</th><td>SMS Forwarder 双卡短信转发器</td></tr>
+        <tr><th>运行模式</th><td>服务器版（联网集中管理）/ 纯本地版（单机独立运行），同一硬件随时切换</td></tr>
+        <tr><th>当前版本</th><td>v2.0.0</td></tr>
+        <tr><th>SIM 卡槽</th><td>2 槽，双卡双待，两卡独立工作互不干扰</td></tr>
+        <tr><th>网络制式</th><td>4G 全网通，自动驻网</td></tr>
+        <tr><th>短信能力</th><td>接收 + 发送双向，支持长短信自动拼接</td></tr>
+        <tr><th>推送延迟</th><td>端到端通常在 1 秒内</td></tr>
+        <tr><th>推送通道</th><td>9 种内置通道 + 邮件通知（支持白名单）</td></tr>
+        <tr><th>过滤规则</th><td>放行关键词、屏蔽关键词、号码黑名单</td></tr>
+        <tr><th>供电控制</th><td>支持按卡槽硬件断电重启，可单独操作其中一张</td></tr>
+        <tr><th>远程运维</th><td>整机重启、单/全模块重初始化、单卡飞行模式、网络测速</td></tr>
+        <tr><th>定时任务</th><td>定时重启、飞行模式时段自动切换</td></tr>
+        <tr><th>设备管理</th><td>绑定 / 解绑 / 多用户共享（控制 · 只读两种角色）</td></tr>
+        <tr><th>账号登录</th><td>账号密码、短信验证码、微信登录</td></tr>
+        <tr><th>客户端</th><td>Web 管理面板、微信小程序（服务器版）；设备内置网页（两版通用）</td></tr>
+        <tr><th>本地管理界面</th><td>设备内置网页，浏览器直连 <span class="mono">http://sms.local</span> 或设备局域网 IP</td></tr>
+        <tr><th>本机短信历史</th><td>设备本地保留最近 100 条，可随时清空</td></tr>
+        <tr><th>设备侧推送</th><td>最多 3 组通道 + 邮件 + MQTT，均由设备直连发出，不经服务器</td></tr>
+        <tr><th>可管理设备</th><td>服务器版单账号支持多台设备集中管理</td></tr>
+        <tr><th>部署方式</th><td>服务器版自托管，数据完全自主可控；纯本地版无需部署任何服务端</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="eyebrow">FAQ</div>
+    <h2>常见问题</h2>
+    <div class="faq">
+      <details open>
+        <summary>服务器版和纯本地版该怎么选？差别到底在哪？</summary>
+        <p>核心区别只有一条：<strong>设备过不过服务器</strong>。接服务器能换来长期归档、随时随地访问、微信小程序、多台设备集中管理和掉线告警；不接服务器则短信不出局域网，设备自己直连推送通道，隐私性最好、部署最省事。如果你只是想把验证码转出来，纯本地版就够了；如果要团队共用、要在外面翻历史短信，选服务器版。两种模式共用同一台硬件，随时切换。</p>
+      </details>
+      <details>
+        <summary>纯本地版没有公网服务器，出门在外还能收到短信吗？</summary>
+        <p>能。推送通道是设备通过自己的 4G 网络直接发出去的，走的是 SIM 卡的移动数据，跟家里局域网无关——Bark、Telegram、企业微信、钉钉、飞书、Gotify、自定义 Webhook 都能照常收到。纯本地版少了的只是「远程打开面板翻历史短信」，历史记录要在局域网内打开设备网页查看，或者直接用手机上的推送通知。</p>
+      </details>
+      <details>
+        <summary>短信内容会不会被第三方看到？</summary>
+        <p>纯本地版下，短信只停在设备里，只有你主动配置的推送目标会收到内容，没有任何中间服务器。服务器版下，短信经过<strong>你自己部署</strong>的服务器——服务端与数据库都在你手里，不经过任何第三方平台。无论哪种模式，推送通道都只在你命中转发规则时才向外发送。</p>
+      </details>
+      <details>
+        <summary>两种模式可以同时用吗？</summary>
+        <p>可以。设备接上服务器的同时，本地配置的推送通道、邮件和 MQTT 依然会并行发出——这几条路互不等待、互不干扰。所以你既能享受面板的多端管理与归档，又能保留一条不依赖服务器的直连推送作为兜底。</p>
+      </details>
+      <details>
+        <summary>设备需要一直插着 SIM 卡吗？</summary>
+        <p>是的。设备的作用就是把插在其中的 SIM 卡短信转发出去，SIM 卡需保持插好且模组在线。两张卡槽相互独立，插一张也能正常工作。</p>
+      </details>
+      <details>
+        <summary>推送会有明显延迟吗？</summary>
+        <p>设备与服务端之间保持长连接，短信到达后由设备主动上报、服务端即时下发，端到端通常在 1 秒内完成，实际耗时主要取决于运营商网络与模组响应。</p>
+      </details>
+      <details>
+        <summary>一台设备可以给多个人用吗？</summary>
+        <p>可以。设备所有者可开启分享并设置名额，其他用户输入设备编码绑定后即可访问，并可分配「控制」或「只读」角色；所有者随时可解绑或清除全部绑定。</p>
+      </details>
+      <details>
+        <summary>短信数据存在哪里，安全吗？</summary>
+        <p>整套方案为自托管部署，服务端与数据库都由你自己掌控，短信记录不会经过任何第三方平台。推送通道仅在命中转发规则时按你的配置向外发送。</p>
+      </details>
+      <details>
+        <summary>设备掉线了能发现吗？</summary>
+        <p>可以。服务端持续监测设备心跳，掉线超过阈值会向绑定用户推送离线提醒；恢复上线同样会即时通知。你也可以在面板随时查看心跳时间与在线状态。</p>
+      </details>
+      <details>
+        <summary>模组卡死了怎么办？软件重启不管用呢？</summary>
+        <p>可以直接对问题卡槽做<strong>硬件级断电重启</strong>：设备切断该模组供电，稍作延时后重新上电，相当于手动拔插一次电源，比指令软重启彻底得多。操作只针对指定卡槽，另一张卡不受影响。</p>
+      </details>
+      <details>
+        <summary>能对单个卡槽单独开关机吗？</summary>
+        <p>可以。每个模块都能独立启用 / 禁用与切换飞行模式，两张卡互不干扰——维护或停用其中一张时，另一张仍可持续接收短信。也可以单独对某一个模块执行断电重启，而不必整机重启。</p>
+      </details>
+      <details>
+        <summary>Ping 测速的目标地址可以改吗？</summary>
+        <p>不需要在面板手动指定。目标由服务端统一配置，日常使用点一下即可；如需调整（例如换成国内 DNS），在服务端改一次便对所有设备生效。面板展示的结果就是设备实际 Ping 的目标地址。</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-brand">📡 SMS Forwarder</div>
+    <p>双卡短信转发器 · 硬件终端 + Web 管理面板 + 微信小程序</p>
+    <p style="margin-top:6px">© 2024 SMS Forwarder · 保留所有权利</p>
+  </div>
+</footer>
+
+</body>
+</html>
